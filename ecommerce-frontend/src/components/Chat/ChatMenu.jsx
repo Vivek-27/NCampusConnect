@@ -217,7 +217,7 @@ const ChatMenu = ({ setChatMenu }) => {
 
         <div className="bottom">
           {users.length > 0
-            ? users.map((item, idx) => {
+            ? users?.map((item, idx) => {
                 return (
                   <div
                     onClick={(e) => {
