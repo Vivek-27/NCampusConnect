@@ -52,7 +52,7 @@ const EditProduct = () => {
       if (productId) {
         try {
           const result = axios.put(
-            `https://ncampusconnect.onrender.com/api/item/one/${productId}`
+            `hppt:localhost:5000/api/item/one/${productId}`
           );
           console.log(result);
           if (result) {
