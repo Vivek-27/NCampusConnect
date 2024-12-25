@@ -1,10 +1,12 @@
+const Notification = require('../models/Notification');
+
 const getNotifiaction = async (req, res) => {
   const { userId } = req.params;
   console.warn(userId);
 
   try {
     const notifications = await Notification.find({ to: userId }).sort({
-      createdAt: -1,
+      createdAt: -1
     }); // Get notifications for the user, sorted by newest first
     res.json(notifications);
   } catch (error) {
@@ -27,7 +29,7 @@ const deleteNotificatio = async (req, res) => {
     // Respond with the deleted notification (or just a success message)
     res.json({
       message: 'Notification deleted successfully',
-      deletedNotification,
+      deletedNotification
     });
   } catch (error) {
     console.error(error);
@@ -37,5 +39,5 @@ const deleteNotificatio = async (req, res) => {
 
 module.exports = {
   getNotifiaction,
-  deleteNotificatio,
+  deleteNotificatio
 };
