@@ -25,7 +25,7 @@ app.use(cookieParser());
 const server = http.createServer(app);
 const io = socketIo(server, {
   cors: {
-    origin: 'http://localhost:5173', // Update to your frontend URL if different
+    origin: 'https://ncampusconnect-1.onrender.com', // Update to your frontend URL if different
     methods: ['GET', 'POST'],
     credentials: true // Ensure cookies can be sent with WebSocket connections
   }
