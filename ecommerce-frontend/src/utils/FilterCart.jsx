@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { fetchItems } from '../redux/actions/ItemAction';
 
@@ -20,24 +20,20 @@ const FilterCart = ({ categories }) => {
     setPriceRange(value);
   };
 
-  const applyFilters = () => {
-    // Call fetchItems with the selected filters
-    dispatch(
-      fetchItems({
-        categories: selectedCategories,
-        priceRange
-      })
-    );
-  };
+  // Effect to apply filters automatically when selected categories or price range changes
+  useEffect(() => {
+    dispatch(fetchItems({ categories: selectedCategories, priceRange }));
+  }, [selectedCategories, priceRange, dispatch]);
 
   return (
     <div
       style={{ background: '#fcfcfb' }}
-      className=" border border-gray-300 rounded-lg min-w-56 h-fit min-h-96 px-3 py-5"
+      className="border border-gray-300 rounded-lg min-w-56 h-fit min-h-96 px-3 py-5"
     >
       <h2 className="text-md font-semibold text-gray-900">Filter</h2>
-      <div className="border-b-2 max-w-full flex flex-col gap-1 border-gray-200 px-1 text-sm text-gray-500 py-1">
-        <h3 className="">Categories</h3>
+
+      <div className="max-w-full flex flex-col gap-1 border-gray-200 px-1 text-sm text-gray-500 py-1">
+        <h3>Categories</h3>
         {categories?.map((category) => (
           <label key={category} className="flex gap-1">
             <input
@@ -50,7 +46,7 @@ const FilterCart = ({ categories }) => {
         ))}
       </div>
 
-      <div className="border-b-2 border-gray-200 px-1 text-sm text-gray-500 py-1">
+      {/* <div className="border-b-2 border-gray-200 px-1 text-sm text-gray-500 py-1">
         <h3>Price Range</h3>
         <input
           type="range"
@@ -62,14 +58,7 @@ const FilterCart = ({ categories }) => {
         <p>
           ${priceRange[0]} - ${priceRange[1]}
         </p>
-      </div>
-
-      <button
-        className="text-xs bg-sky-500 px-6 h-8 mt-5 py-1 rounded-lg text-white"
-        onClick={applyFilters}
-      >
-        Apply Filters
-      </button>
+      </div> */}
     </div>
   );
 };

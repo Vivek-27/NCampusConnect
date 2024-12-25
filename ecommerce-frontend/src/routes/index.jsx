@@ -14,6 +14,7 @@ import CartPage from '../pages/CartPage';
 import UserDetails from '../components/Social/UserDetails';
 import ChatWrapper from '../components/Social/ChatWrapper';
 import Notifications from '../components/Notifications/Notifications';
+import ChatMenu from '../components/Chat/ChatMenu';
 
 const router = createBrowserRouter([
   {
@@ -22,35 +23,39 @@ const router = createBrowserRouter([
     children: [
       {
         path: 'cart',
-        element: <CartPage />
+        element: <CartPage />,
       },
       {
         path: 'user/:id',
         element: <UserDetails />,
-        children: [
-          {
-            path: 'chat',
-            element: <ChatWrapper />
-          }
-        ]
       },
+
       {
         path: '',
         element: <HomePage />,
         children: [
           {
             path: 'categories',
-            element: <CategoriesPage />
-          }
-        ]
+            element: <CategoriesPage />,
+          },
+          {
+            path: 'chat',
+            element: <ChatMenu />,
+          },
+        ],
       },
+
       {
         path: '/product/:id',
-        element: <ProductDetailPage />
+        element: <ProductDetailPage />,
       },
       {
         path: 'auth',
-        element: <AuthPage />
+        element: <AuthPage />,
+      },
+      {
+        path: 'chat',
+        element: <ChatMenu />,
       },
       {
         path: 'account',
@@ -63,21 +68,21 @@ const router = createBrowserRouter([
             element: <MyAdsPage />,
             children: [
               { path: 'editproduct/:productId', element: <EditProduct /> },
-              { path: 'editproduct', element: <EditProduct /> }
-            ]
+              { path: 'editproduct', element: <EditProduct /> },
+            ],
           },
           {
             path: 'orders',
-            element: <OrdersPage />
-          }
-        ]
+            element: <OrdersPage />,
+          },
+        ],
       },
       {
         path: 'notifications',
-        element: <Notifications />
-      }
-    ]
-  }
+        element: <Notifications />,
+      },
+    ],
+  },
 ]);
 
 export default router;

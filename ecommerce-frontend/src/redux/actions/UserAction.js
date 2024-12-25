@@ -22,6 +22,27 @@ export const deleteUser = () => async (dispatch) => {
 };
 
 // Redux Action: followUser
+export const updatedUserDetails = () => async (dispatch) => {
+  dispatch({ type: 'USERDATA_UPDATE_START' });
+
+  try {
+    const response = await UserAPI.updatedUserDetails(); // API call
+    const updatedUser = response.data; // Get updated user data from backend response
+
+    dispatch({
+      type: 'USER_FOLLOW_SUCCESS',
+      payload: updatedUser // Dispatch the updated data to Redux store
+    });
+    console.log(updatedUser);
+  } catch (error) {
+    dispatch({
+      type: 'USERDATA_UPDATE_FAIL',
+      error: error.response?.data?.message || 'An error occurred.'
+    });
+  }
+};
+
+// Redux Action: followUser
 export const followUser = (id) => async (dispatch) => {
   dispatch({ type: 'USERDATA_UPDATE_START' });
 
@@ -33,7 +54,6 @@ export const followUser = (id) => async (dispatch) => {
       type: 'USER_FOLLOW_SUCCESS',
       payload: updatedUser // Dispatch the updated data to Redux store
     });
-    console.log(updatedUser);
   } catch (error) {
     dispatch({
       type: 'USERDATA_UPDATE_FAIL',

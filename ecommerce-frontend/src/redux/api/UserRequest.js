@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const API = axios.create({
-  baseURL: 'http://localhost:5000',
+  baseURL: 'https://ncampusconnect-1.onrender.com',
   withCredentials: true
 });
 
@@ -13,6 +13,8 @@ export const updateUser = (formData) =>
   });
 
 export const getUser = (id) => API.get(`/api/users/get_user/${id}`);
+export const updatedUserDetails = () =>
+  API.get(`/api/users/updatedUserDetails`);
 
 export const deleteUser = (formData) =>
   API.delete('/api/users/delete', formData); //todo

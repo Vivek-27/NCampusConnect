@@ -1,11 +1,14 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Card from '../components/card/Card';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useNavigate, useOutletContext } from 'react-router-dom';
 import FilterCart from '../utils/FilterCart';
 import LoadingCard from '../components/card/LoadingCard';
 import SocialHome from '../components/Social/SocialHome';
 import { fetchItems } from '../redux/actions/ItemAction';
+import { PiChatCircleTextFill } from 'react-icons/pi';
+import ChatMenu from '../components/Chat/ChatMenu';
+import useClickOutside from '../hooks/useClickOutside';
 
 const HomePage = () => {
   const [filters, setFilters] = useState({
@@ -17,9 +20,13 @@ const HomePage = () => {
     condition: ''
   });
 
+  const [chatMenu, setChatMenu] = useState(false);
+
   // Use Redux to access the items and loading state
   const dispatch = useDispatch();
   const { items, loading } = useSelector((state) => state.itemReducer); // Assuming you have a 'items' reducer
+
+  const navigate = useNavigate();
 
   // Fetch products based on filters (dispatches fetchItems)
   const fetchProducts = () => {
@@ -105,27 +112,24 @@ const HomePage = () => {
     fetchProducts();
   }, [filters, dispatch]); // Trigger whenever filters or dispatch change
   const categories = [
-    'Furniture', // Essential furniture items for a hostel room or shared living space
-    'Kitchen Accessories', // Items for cooking and maintaining a shared kitchen
-    'Groceries', // Basic food items for meal preparation
-    'Smartphones', // Communication, studies, and entertainment
-    'Mobile Accessories', // Chargers, power banks, headphones, phone cases
-    'Laptops/Tablets', // For studies, assignments, and staying connected
-    'Clothing', // Casual, comfortable clothing for daily use
-    'Mens Shirts', // For male students looking for shirts
-    'Mens Shoes', // Comfortable footwear for daily use
-    'Mens Watches', // Timepieces for personal use
-    'Womens Bags', // Essential bags for carrying books, essentials
-    'Womens Dresses', // Comfortable and stylish clothing for female students
-    'Womens Shoes', // Footwear for female students
-    'Womens Watches', // Timepieces for female students
-    'Skin Care', // Personal care products like skincare items
-    'Sports Accessories', // Items for fitness, gym, or recreational activities
-    'Mobile Accessories', // Phone cases, chargers, power banks, etc.
-    'Tablets', // For study, entertainment, or browsing
-    'Sunglasses', // Protection from the sun and fashion
-    'Vehicle', // Bikes, scooters, etc. for commuting
-    'Home Decoration' // To personalize living space (e.g., room décor)
+    'Room Essentials',
+    'Cooking & Kitchenware',
+    'Food & Snacks',
+    'Electronics & Gadgets',
+    'Study Materials',
+    'Apparel & Fashion',
+    'Shoes & Footwear',
+    'Bags & Backpacks',
+    'Personal Care & Hygiene',
+    'Fitness & Sports Gear',
+    'Outdoor & Travel Gear',
+    'Home Décor & Organization',
+    'Entertainment & Hobbies',
+    'Health & Wellness',
+    'Tech Accessories',
+    'Cleaning Supplies',
+    'Stationery & Office Supplies',
+    'Seasonal Items'
   ];
 
   // Update filters state when a new filter is applied
@@ -136,8 +140,51 @@ const HomePage = () => {
     }));
   };
 
+  // const { messages } = useOutletContext();
+  const [position, setPosition] = useState({ x: 30, y: 30 }); // initial position of the div
+  const [isDragging, setIsDragging] = useState(false); // to check if the div is being dragged
+  const [offset, setOffset] = useState({ x: 0, y: 0 }); // stores the difference between mouse and div position
+
+  // When mouse is pressed on the div
+  const onMouseDown = (e) => {
+    setIsDragging(true);
+    setOffset({
+      x: e.clientX - position.x,
+      y: e.clientY - position.y
+    });
+  };
+
+  // When mouse is moved, update the position of the div
+  const onMouseMove = (e) => {
+    if (isDragging) {
+      setPosition({
+        x: e.clientX - offset.x,
+        y: e.clientY - offset.y
+      });
+    }
+  };
+
+  // When mouse is released, stop dragging
+  const onMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  // Bind the mouse move and mouse up to the window to handle drag outside the div
+  React.useEffect(() => {
+    if (isDragging) {
+      window.addEventListener('mousemove', onMouseMove);
+      window.addEventListener('mouseup', onMouseUp);
+    } else {
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mouseup', onMouseUp);
+    }
+    return () => {
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mouseup', onMouseUp);
+    };
+  }, [isDragging]);
   return (
-    <div className="w-full flex flex-col items-center transition-all duration-300 ease-in-out">
+    <div className="w-full flex flex-col items-center transition-all duration-300 ease-in-out relative">
       <Outlet />
       <h1
         style={{
@@ -177,6 +224,29 @@ const HomePage = () => {
           </div>
         </div>
       </div>
+
+      <PiChatCircleTextFill
+        onClick={() => {
+          setChatMenu(true);
+        }}
+        className="fixed  text-green-600 border rounded-full p-2 bg-white right-10 bottom-10 w-16 h-14 cursor-pointer hover:scale-95 active:scale-105 transition-all animate-scroll-in-slide shadow-xl "
+      />
+      {chatMenu && (
+        <div
+          onMouseDown={onMouseDown}
+          style={{
+            position: 'absolute',
+            left: position.x,
+            top: position.y,
+            cursor: 'move',
+            textAlign: 'center'
+          }}
+          className=" h-full"
+        >
+          <ChatMenu setChatMenu={setChatMenu} />
+        </div>
+      )}
+
       <Footer />
     </div>
   );

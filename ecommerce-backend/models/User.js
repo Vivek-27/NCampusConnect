@@ -21,7 +21,7 @@ const userSchema = new mongoose.Schema(
     about: { type: String },
     phone: { type: Number },
     postalCode: { type: Number },
-    sentFriendRequests: [{ type: ObjectId, ref: 'User' }],
+    sentFollowRequests: [{ type: ObjectId, ref: 'User' }],
     followRequests: [{ type: ObjectId, ref: 'User' }],
     followers: [{ type: ObjectId, ref: 'User' }],
     following: [{ type: ObjectId, ref: 'User' }],

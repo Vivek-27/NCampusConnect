@@ -55,9 +55,9 @@ const Navbar = () => {
     setProducts([]);
   };
   // Using custom hook for handling clicks outside
-  useClickOutside(profileRef, handleProfileOptionsClose);
   useClickOutside(notificationRef, handleNotificationPanalClose);
   useClickOutside(searchResultRef, handleProductsClose);
+  useClickOutside(profileRef, handleProfileOptionsClose);
 
   const [notifications, setNotifications] = useState([]);
 
@@ -72,7 +72,6 @@ const Navbar = () => {
 
   const ProfileOptoins = () => (
     <div
-      ref={profileRef}
       style={{ background: '#fcfcfb' }}
       className="border-2 border-gray-200 rounded-xl mt-2 absolute z-20 right-0 w-72 pt-3 overflow-hidden shadow-xl hover:shadow-2xl animate-menu-slide"
     >
@@ -214,7 +213,7 @@ const Navbar = () => {
           ))}
         </nav>
         <div className="flex items-center gap-4">
-          <div ref={searchResultRef} className="flex relative">
+          <div className="flex relative">
             <form
               onSubmit={(e) => e.preventDefault()}
               className="flex items-center bg-zinc-100 rounded-3xl p-1"
@@ -231,7 +230,10 @@ const Navbar = () => {
 
             <div className=" ">
               {products.length > 0 ? (
-                <ul className="overflow-y-scroll w-80 h-96 absolute top-12 right-0 bg-slate-50 overflow-hidden rounded-xl ">
+                <ul
+                  ref={searchResultRef}
+                  className="overflow-y-scroll w-full h-96 border absolute mt-12 right-0 bg-slate-50 overflow-hidden rounded-xl"
+                >
                   {products.map((product) => (
                     <li
                       key={product._id}
@@ -301,7 +303,7 @@ const Navbar = () => {
           {notificationPanal && <Notifications ref={notificationRef} />}
 
           {user ? (
-            <div>
+            <div ref={profileRef}>
               <img
                 src={user?.profileImg}
                 alt="profile"
@@ -311,6 +313,7 @@ const Navbar = () => {
                   setProfileOptions(!profileOptions);
                 }}
               />
+
               {profileOptions && <ProfileOptoins />}
             </div>
           ) : (

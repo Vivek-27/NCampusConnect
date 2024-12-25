@@ -1,14 +1,15 @@
 import LoadingCard from '../card/LoadingCard';
 import { useEffect, useState } from 'react';
 import Card from '../card/Card';
-import { Outlet, useNavigate, useParams } from 'react-router-dom';
+import {  useParams } from 'react-router-dom';
 import { getUser } from '../../redux/api/UserRequest';
 import { fetchUserItems } from '../../redux/api/ItemRequest';
+import ChatWrapper from './ChatWrapper';
 
 const UserDetails = () => {
   const [products, setProducts] = useState([]);
   const [user, setUser] = useState();
-  const navigate = useNavigate();
+  const [messagePop, setMessagePop] = useState(false)
   const { id } = useParams();
 
   useEffect(() => {
@@ -16,8 +17,10 @@ const UserDetails = () => {
     fetchUserItems(id).then((data) => setProducts(data?.data));
   }, [id]);
   return (
-    <div className=" rounded-xl bg-white flex flex-col py-5 px-32 m-10">
-      <Outlet />
+    <>
+    <div className=" rounded-xl bg-white flex flex-col py-5 px-32 m-10 relative">
+    {messagePop && <ChatWrapper  props={id}/>}
+
       <h1 className=" text-center font-bold text-2xl my-1 text-gray-700 ">
         Find your college
       </h1>
@@ -40,7 +43,7 @@ const UserDetails = () => {
         </div>
         <div className="flex gap-10">
           <button
-            onClick={() => navigate('chat')}
+            onClick={() =>setMessagePop(!messagePop)}
             className=" rounded-xl text-red-600 text-sm px-3 py-2 bg-red-50 "
           >
             Message
@@ -50,10 +53,9 @@ const UserDetails = () => {
           </button>
         </div>
       </div>
-
       <div className=" mb-10  flex items-center justify-center gap-20 px-5 py-2">
-        <p>{user?.followers > 0 ? user?.followers : 0} Followers</p>
-        <p> {user?.following > 0 ? user?.following : 0} Following</p>
+        <p>{user?.followers.length > 0 ? user?.followers.length : 0} Followers</p>
+        <p> {user?.following.length > 0 ? user?.following.length : 0} Following</p>
       </div>
       <div className=" w-fit grid lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-1 gap-5 pb-10">
         {products.length > 0 ? (
@@ -76,6 +78,7 @@ const UserDetails = () => {
         )}
       </div>
     </div>
+    </>
   );
 };
 

@@ -8,7 +8,9 @@ import { getUser } from '../../redux/api/UserRequest';
 import { useDispatch } from 'react-redux';
 import {
   acceptFollowRequest,
-  denyFollowRequest
+  denyFollowRequest,
+  updatedUserDetails,
+  updateUser
 } from '../../redux/actions/UserAction';
 
 // Forward ref to allow external components to interact with the Notifications component's DOM
@@ -19,6 +21,7 @@ const Notifications = React.forwardRef((props, ref) => {
   const [notifications, setNotifications] = useState([]);
 
   const socketNotifications = useSocket(userId); // Using the custom hook for socket notifications
+  const dispatch = useDispatch();
 
   useEffect(() => {
     // Update the notifications list when socket notifications are received
@@ -29,11 +32,12 @@ const Notifications = React.forwardRef((props, ref) => {
       ]);
     }
   }, [socketNotifications]);
+
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
         const res = await axios.get(
-          `http://localhost:5000/api/notifications/${userId}`
+          `https://ncampusconnect-1.onrender.com/api/notifications/${userId}`
         );
         setNotifications(res.data);
       } catch (err) {
@@ -45,8 +49,7 @@ const Notifications = React.forwardRef((props, ref) => {
   }, [userId]);
 
   const Message = ({ notification }) => {
-    const { message, type, status, from, createdAt, _id, profileImg } =
-      notification;
+    const { message, type, status, from, createdAt, profileImg } = notification;
     const [user, setUser] = useState('');
     useEffect(() => {
       getUser(from).then((data) => {
@@ -58,7 +61,7 @@ const Notifications = React.forwardRef((props, ref) => {
       try {
         // Delete the notification from the server
         await axios.delete(
-          `http://localhost:5000/api/notifications/delete/${_id}`
+          `https://ncampusconnect-1.onrender.com/api/notifications/delete/${_id}`
         );
 
         // Remove the notification from the local state (UI)
@@ -70,7 +73,6 @@ const Notifications = React.forwardRef((props, ref) => {
         alert('Failed to delete notification');
       }
     };
-    const dispatch = useDispatch();
     return (
       <div className="mx-1 px-3 my-2 py-4 flex justify-between gap-2 animate-fade-in-slide rounded-xl bg-gray-100 hover:bg-gray-200 transition-all">
         <div>
@@ -89,13 +91,19 @@ const Notifications = React.forwardRef((props, ref) => {
             {type === 'request' && (
               <div className="flex gap-2 mt-2 h-7">
                 <button
-                  onClick={dispatch(denyFollowRequest)}
-                  className="text-xs bg-gray-200 px-6 py-1 rounded-lg text-gray-600"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    dispatch(denyFollowRequest(from));
+                  }}
+                  className="text-xs bg-gray-200 border px-6 py-1 rounded-lg text-gray-600"
                 >
                   Deny
                 </button>
                 <button
-                  onClick={dispatch(acceptFollowRequest)}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    dispatch(acceptFollowRequest(from));
+                  }}
                   className="text-xs bg-sky-500 px-6 py-1 rounded-lg text-white"
                 >
                   Approve

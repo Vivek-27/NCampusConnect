@@ -4,14 +4,15 @@ const {
   loginUser,
   updateUser,
   followUser,
-  withdrawlfollow,
   followRequests,
-  acceptReq,
-  denyReq,
   Friends,
   AllUsers,
   getUser,
-  getSearchUsers
+  getSearchUsers,
+  withdrawFollowRequest,
+  acceptFollowRequest,
+  denyFollowRequest,
+  updatedUserDetails
 } = require('../controllers/userController.js');
 const router = express.Router();
 const { verifyEmail } = require('../controllers/userController.js');
@@ -24,13 +25,14 @@ router.post('/login', loginUser);
 router.delete('/delete', loginUser); //todo
 
 router.put('/update_user', auth, updateUser);
+router.get('/updatedUserDetails', auth, updatedUserDetails);
 router.get('/get_user/:id', getUser);
 
 router.post('/follow', auth, followUser);
-router.post('/withdrawfollow', auth, withdrawlfollow);
+router.post('/withdrawfollow', auth, withdrawFollowRequest);
 router.get('/followRequests', auth, followRequests);
-router.post('/acceptRequest', auth, acceptReq);
-router.post('/denyReq', auth, denyReq);
+router.post('/acceptRequest', auth, acceptFollowRequest);
+router.post('/denyReq', auth, denyFollowRequest);
 
 router.get('/friends', auth, Friends);
 router.get('/all_users', AllUsers);

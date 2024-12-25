@@ -1,20 +1,40 @@
+import { useEffect } from 'react';
 import { FaCaretLeft } from 'react-icons/fa';
 import { MdAttachFile, MdSend } from 'react-icons/md';
 import { useNavigate } from 'react-router-dom';
+import io from 'socket.io-client';
+
+const socket = io('https://ncampusconnect-1.onrender.com');
 
 const ChatWrapper = () => {
   const navigate = useNavigate();
 
+  //  useEffect(() => {
+
+  //     // Join the room when the component mounts
+  //     socket.emit('joinRoom', userId);
+
+  //     // Listen for new notifications
+  //     socket.on('newNotification', (notification) => {
+  //       // Add the new notification at the top of the array
+  //       setNotifications((prevNotifications) => [
+  //         notification,
+  //         ...prevNotifications
+  //       ]);
+  //     });
+
+  //     return () => {
+  //       socket.off('newNotification'); // Clean up on unmount
+  //     };
+  //   }, [userId]);
+
   return (
     <div
       draggable="true"
-      className=" w-80 h-2/3 bg-white absolute center border rounded-2xl px-3 py-3 gap-2 flex flex-col shadow-2xl"
+      className=" bg-white border rounded-2xl px-3 py-3 gap-2 flex flex-col shadow-2xl z-20 fixed right-20 top-60"
     >
       <div className=" w-full flex items-center justify-between px-5">
-        <button
-          onClick={() => navigate(-1)}
-          className="text-xs text-gray-700 flex items-center"
-        >
+        <button className="text-xs text-gray-700 flex items-center">
           <FaCaretLeft /> back
         </button>
         <h2 className="text-lg font-semibold text-gray-900">Message</h2>

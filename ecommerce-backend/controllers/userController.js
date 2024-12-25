@@ -245,88 +245,118 @@ const updateUser = async (req, res) => {
   }
 };
 
+const updatedUserDetails = async (req, res) => {
+  try {
+    const updatedUser = await User.findById(req.user._id);
+    return res.status(200).json(updatedUser);
+  } catch (error) {
+    console.error(error);
+    return res
+      .status(500)
+      .json({ message: 'Server error', error: error.message });
+  }
+};
+
 const followUser = async (req, res) => {
   const io = req.app.get('io');
   try {
     const { selectedUserId } = req.body;
 
+    // Prevent following yourself
     if (req.user._id === selectedUserId) {
       return res.status(400).json({ message: 'You cannot follow yourself' });
     }
 
+    // Find the user to follow
     const user = await User.findById(selectedUserId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
 
+    // If the user has a private profile, it's a follow request
     if (user.private) {
-      // Add to sender's sent follow requests
+      // Check if already sent a follow request
+      const alreadySentRequest =
+        req.user.sentFollowRequests.includes(selectedUserId);
+      if (alreadySentRequest) {
+        return res
+          .status(400)
+          .json({ message: 'You have already sent a follow request' });
+      }
+
+      // Add to sender's sent follow requests and receiver's follow requests
       await User.findByIdAndUpdate(req.user._id, {
         $push: { sentFollowRequests: selectedUserId }
       });
-
-      // Add to receiver's follow requests
       await User.findByIdAndUpdate(selectedUserId, {
         $push: { followRequests: req.user._id }
       });
 
-      const notificationMessageSender = `You sent follow request to ${user.username}.`;
+      // Notification for follow request sent
       const senderNotification = new Notification({
-        from: selectedUserId,
-        to: req.user._id,
-        message: notificationMessageSender,
+        from: req.user._id,
+        to: selectedUserId,
+        message: `You sent a follow request to ${user.username}`,
         type: 'followed',
         profileImg: req.user.profileImg
       });
-      await senderNotification.save();
-
-      // Send notification to the user who received the follow request
-      const notificationMessageReceiver = `${req.user.username} has sent you a follow request.`;
       const receiverNotification = new Notification({
         from: req.user._id,
         to: selectedUserId,
-        message: notificationMessageReceiver,
+        message: `${req.user.username} has sent you a follow request`,
         type: 'request',
         profileImg: req.user.profileImg
       });
+
+      await senderNotification.save();
       await receiverNotification.save();
+
+      // Emit notifications
       io.to(selectedUserId.toString()).emit(
         'newNotification',
         receiverNotification
       );
-
       io.to(req.user._id.toString()).emit(
         'newNotification',
         senderNotification
       );
     } else {
+      // If public profile, follow directly
+      const alreadyFollowing = req.user.following.includes(selectedUserId);
+      if (alreadyFollowing) {
+        return res
+          .status(400)
+          .json({ message: 'You are already following this user' });
+      }
+
+      // Add to both users' following and followers lists
       await User.findByIdAndUpdate(req.user._id, {
         $push: { following: selectedUserId }
       });
-
-      // Add to receiver's followers
       await User.findByIdAndUpdate(selectedUserId, {
         $push: { followers: req.user._id }
       });
 
-      // Send notification to both users
-      const notificationMessageSender = `You are now following ${user.username}.`;
+      // Notification for new follow
       const senderNotification = new Notification({
-        from: selectedUserId,
-        to: req.user._id,
-        message: notificationMessageSender,
+        from: req.user._id,
+        to: selectedUserId,
+        message: `You are now following ${user.username}`,
         type: 'followed',
         profileImg: user.profileImg
       });
-      await senderNotification.save();
-
-      const notificationMessageReceiver = `${req.user.username} is now following you.`;
       const receiverNotification = new Notification({
         from: req.user._id,
         to: selectedUserId,
-        message: notificationMessageReceiver,
+        message: `${req.user.username} is now following you`,
         type: 'followed',
         profileImg: req.user.profileImg
       });
+
+      await senderNotification.save();
       await receiverNotification.save();
 
+      // Emit notifications
       io.to(selectedUserId.toString()).emit(
         'newNotification',
         receiverNotification
@@ -337,7 +367,6 @@ const followUser = async (req, res) => {
       );
     }
 
-    // Return the updated user data
     const updatedUser = await User.findById(req.user._id);
     return res.status(200).json(updatedUser);
   } catch (error) {
@@ -346,74 +375,95 @@ const followUser = async (req, res) => {
   }
 };
 
-const withdrawlfollow = async (req, res) => {
+const withdrawFollowRequest = async (req, res) => {
   const io = req.app.get('io');
   try {
     const { selectedUserId } = req.body;
 
+    // Prevent withdrawing follow request for yourself
     if (req.user._id === selectedUserId) {
-      return res.status(400).json({ message: 'You cannot unfollow yourself' });
+      return res
+        .status(400)
+        .json({ message: 'You cannot withdraw a follow request to yourself' });
     }
 
     const user = await User.findById(selectedUserId);
-
     if (user.private) {
-      // Remove from sender's sent follow requests
+      // Check if follow request exists
+      const alreadySentRequest =
+        req.user.sentFollowRequests.includes(selectedUserId);
+      if (alreadySentRequest) {
+        // Remove follow request from both users
+        await User.findByIdAndUpdate(req.user._id, {
+          $pull: { sentFollowRequests: selectedUserId }
+        });
+        await User.findByIdAndUpdate(selectedUserId, {
+          $pull: { followRequests: req.user._id }
+        });
+
+        const updatedUser = await User.findById(req.user._id);
+        return res.status(200).json(updatedUser);
+      }
+
+      // Remove follow request from both users
       await User.findByIdAndUpdate(req.user._id, {
-        $pull: { sentFollowRequests: selectedUserId }
+        $pull: { following: selectedUserId }
       });
-
-      // Remove from receiver's follow requests
       await User.findByIdAndUpdate(selectedUserId, {
-        $pull: { followRequests: req.user._id }
+        $pull: { followers: req.user._id }
       });
 
-      // Send notification for the request withdrawal
-      const notificationMessageReceiver = `${req.user.username} has withdrawn their follow request.`;
+      // Send notification about withdrawn request
       const receiverNotification = new Notification({
         from: req.user._id,
         to: selectedUserId,
-        message: notificationMessageReceiver,
+        message: `${req.user.username} has withdrawn their follow request.`,
         type: 'follow_request_withdrawn',
         profileImg: req.user.profileImg
       });
+
       await receiverNotification.save();
       io.to(selectedUserId.toString()).emit(
         'newNotification',
         receiverNotification
       );
     } else {
-      // Remove from sender's following list
+      // If not a private account, unfollow directly
+      const alreadyFollowing = req.user.following.includes(selectedUserId);
+      if (!alreadyFollowing) {
+        return res
+          .status(400)
+          .json({ message: 'You are not following this user' });
+      }
+
+      // Remove from both users' following and followers lists
       await User.findByIdAndUpdate(req.user._id, {
         $pull: { following: selectedUserId }
       });
-
-      // Remove from receiver's followers
       await User.findByIdAndUpdate(selectedUserId, {
         $pull: { followers: req.user._id }
       });
 
-      // Send notification for the unfollow action
-      const notificationMessageReceiver = `${req.user.username} has unfollowed you.`;
+      // Notification for unfollow
       const receiverNotification = new Notification({
         from: req.user._id,
         to: selectedUserId,
-        message: notificationMessageReceiver,
+        message: `${req.user.username} has unfollowed you.`,
         type: 'unfollowed',
         profileImg: req.user.profileImg
       });
-      await receiverNotification.save();
-
-      const notificationMessageSender = `You have unfollowed ${user.username}.`;
       const senderNotification = new Notification({
         from: req.user._id,
         to: selectedUserId,
-        message: notificationMessageSender,
+        message: `You have unfollowed ${user.username}.`,
         type: 'unfollowed',
         profileImg: req.user.profileImg
       });
+
+      await receiverNotification.save();
       await senderNotification.save();
 
+      // Emit notifications
       io.to(selectedUserId.toString()).emit(
         'newNotification',
         receiverNotification
@@ -424,68 +474,77 @@ const withdrawlfollow = async (req, res) => {
       );
     }
 
-    // Return updated user data
     const updatedUser = await User.findById(req.user._id);
     return res.status(200).json(updatedUser);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Error withdrawing follow' });
+    res.status(500).json({ message: 'Error withdrawing follow request' });
   }
 };
 
-const acceptReq = async (req, res) => {
+const acceptFollowRequest = async (req, res) => {
   const io = req.app.get('io');
-  const { selectedUserId } = req.body;
   try {
-    if (req.user._id === selectedUserId) {
-      return res.json({
-        message: 'You cannot send or receive a request to yourself'
-      });
-    }
+    const { selectedUserId } = req.body;
 
+    // Prevent accepting a request from yourself
+    if (req.user._id === selectedUserId) {
+      return res
+        .status(400)
+        .json({ message: 'You cannot accept a request from yourself' });
+    }
     const user = await User.findById(selectedUserId);
 
     // Accept the follow request
     if (user.private) {
+      const alreadyFollowing = req.user.following.includes(selectedUserId);
+      if (alreadyFollowing) {
+        return res
+          .status(400)
+          .json({ message: 'You are already following this user' });
+      }
+
+      // Add to both users' followers and following lists, remove from requests
       await User.findByIdAndUpdate(req.user._id, {
         $push: { followers: selectedUserId },
         $pull: { followRequests: selectedUserId }
       });
-
       await User.findByIdAndUpdate(selectedUserId, {
         $push: { following: req.user._id },
         $pull: { sentFollowRequests: req.user._id }
       });
+
+      // Create notifications
+      const receiverNotification = new Notification({
+        from: req.user._id,
+        to: selectedUserId,
+        message: `${req.user.username} accepted your follow request.`,
+        type: 'follow_request_accepted',
+        profileImg: req.user.profileImg
+      });
+
+      const senderNotification = new Notification({
+        from: selectedUserId,
+        to: req.user._id,
+        message: `You accepted a follow request from ${user.username}.`,
+        type: 'follow_request_accepted',
+        profileImg: user.profileImg
+      });
+
+      await receiverNotification.save();
+      await senderNotification.save();
+
+      // Emit notifications
+      io.to(selectedUserId.toString()).emit(
+        'newNotification',
+        receiverNotification
+      );
+      io.to(req.user._id.toString()).emit(
+        'newNotification',
+        senderNotification
+      );
     }
 
-    // Notification for the user who sent the request
-    const notificationMessageReceiver = `${req.user.username} accepted your follow request.`;
-    const receiverNotification = new Notification({
-      from: req.user._id,
-      to: selectedUserId,
-      message: notificationMessageReceiver,
-      type: 'follow_request_accepted',
-      profileImg: req.user.profileImg
-    });
-    await receiverNotification.save();
-    io.to(selectedUserId.toString()).emit(
-      'newNotification',
-      receiverNotification
-    );
-
-    // Notification for the user who accepted the request
-    const notificationMessageSender = `You accepted a follow request from ${user.username}.`;
-    const senderNotification = new Notification({
-      from: selectedUserId,
-      to: req.user._id,
-      message: notificationMessageSender,
-      type: 'follow_request_accepted',
-      profileImg: user.profileImg
-    });
-    await senderNotification.save();
-    io.to(req.user._id.toString()).emit('newNotification', senderNotification);
-
-    // Return updated user data
     const updatedUser = await User.findById(req.user._id);
     return res.status(200).json(updatedUser);
   } catch (error) {
@@ -494,60 +553,59 @@ const acceptReq = async (req, res) => {
   }
 };
 
-const denyReq = async (req, res) => {
+const denyFollowRequest = async (req, res) => {
   const io = req.app.get('io');
-  const { selectedUserId } = req.body;
   try {
+    const { selectedUserId } = req.body;
+
+    // Prevent denying a request from yourself
     if (req.user._id === selectedUserId) {
-      return res.json({
-        message: 'You cannot send or receive a request to yourself'
-      });
+      return res
+        .status(400)
+        .json({ message: 'You cannot deny a request from yourself' });
     }
 
     const user = await User.findById(selectedUserId);
-
-    // Deny the follow request
-    if (user.private) {
-      await User.findByIdAndUpdate(req.user._id, {
-        $pull: { followRequests: selectedUserId }
-      });
-
-      await User.findByIdAndUpdate(selectedUserId, {
-        $pull: { sentFollowRequests: req.user._id }
-      });
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
     }
 
-    // Notification for the sender (denied)
-    const notificationMessageSender = `${req.user.username} denied your follow request.`;
+    // Deny the follow request
+    await User.findByIdAndUpdate(req.user._id, {
+      $pull: { followRequests: selectedUserId }
+    });
+    await User.findByIdAndUpdate(selectedUserId, {
+      $pull: { sentFollowRequests: req.user._id }
+    });
+
+    // Notification about the denied request
     const senderNotification = new Notification({
       from: req.user._id,
       to: selectedUserId,
-      message: notificationMessageSender,
+      message: `${req.user.username} denied your follow request.`,
       type: 'follow_request_denied',
       profileImg: req.user.profileImg
     });
-    await senderNotification.save();
-    io.to(selectedUserId.toString()).emit(
-      'newNotification',
-      senderNotification
-    );
 
-    // Notification for the receiver (denied)
-    const notificationMessageReceiver = `You denied a follow request from ${user.username}.`;
     const receiverNotification = new Notification({
-      from: selectedUserId,
-      to: req.user._id,
-      message: notificationMessageReceiver,
+      from: req.user._id,
+      to: selectedUserId,
+      message: `You denied a follow request from ${user.username}.`,
       type: 'follow_request_denied',
       profileImg: user.profileImg
     });
+
+    await senderNotification.save();
     await receiverNotification.save();
-    io.to(req.user._id.toString()).emit(
+
+    // Emit notifications
+    io.to(selectedUserId.toString()).emit(
       'newNotification',
       receiverNotification
     );
+    io.to(req.user._id.toString()).emit('newNotification', senderNotification);
 
-    res.status(200).json({ message: 'Follow request denied successfully' });
+    return res.status(200).json({ message: 'Follow request denied' });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Error denying follow request' });
@@ -582,7 +640,10 @@ const Friends = async (req, res) => {
 
 const AllUsers = async (req, res) => {
   try {
-    const users = await User.find({}, '_id name username profileImg ');
+    const users = await User.find(
+      {},
+      '_id name username profileImg following followers '
+    );
     res.json(users);
   } catch (error) {
     console.log(error);
@@ -627,10 +688,11 @@ module.exports = {
   loginUser,
   verifyEmail,
   followUser,
-  withdrawlfollow,
+  withdrawFollowRequest,
   followRequests,
-  acceptReq,
-  denyReq,
+  acceptFollowRequest,
+  denyFollowRequest,
   Friends,
-  AllUsers
+  AllUsers,
+  updatedUserDetails
 };
