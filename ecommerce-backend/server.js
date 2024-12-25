@@ -11,7 +11,7 @@ const PORT = process.env.PORT || 5000;
 
 // CORS setup
 const corsOptions = {
-  origin: 'http://localhost:5173', // Make sure to update this with the actual frontend URL
+  origin: 'https://ncampusconnect-1.onrender.com', // Make sure to update this with the actual frontend URL
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   credentials: true // Allow credentials (cookies) to be sent with requests
 };
