@@ -83,7 +83,7 @@ const ChatMenu = ({ setChatMenu }) => {
   const fetchSearchUsers = debounce(async (query) => {
     try {
       const response = await axios.get(
-        `https://ncampusconnect-1.onrender.com/api/users/getSearchUsers?name=${query}`
+        `https://ncampusconnect.onrender.com/api/users/getSearchUsers?name=${query}`
       );
       setUsers(response.data);
     } catch (error) {
@@ -106,7 +106,7 @@ const ChatMenu = ({ setChatMenu }) => {
 
   const handleMessageSend = async (e) => {
     e.preventDefault();
-    await axios.post(`https://ncampusconnect-1.onrender.com/api/chat/send`, {
+    await axios.post(`https://ncampusconnect.onrender.com/api/chat/send`, {
       from: userId,
       to: chatWith._id,
       message: message

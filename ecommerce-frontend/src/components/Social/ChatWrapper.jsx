@@ -4,7 +4,7 @@ import { MdAttachFile, MdSend } from 'react-icons/md';
 import { useNavigate } from 'react-router-dom';
 import io from 'socket.io-client';
 
-const socket = io('https://ncampusconnect-1.onrender.com');
+const socket = io('https://ncampusconnect.onrender.com');
 
 const ChatWrapper = () => {
   const navigate = useNavigate();

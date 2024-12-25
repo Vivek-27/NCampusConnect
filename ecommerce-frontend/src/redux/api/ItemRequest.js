@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const API = axios.create({
-  baseURL: 'https://ncampusconnect-1.onrender.com',
+  baseURL: 'https://ncampusconnect.onrender.com',
 
   withCredentials: true
 });

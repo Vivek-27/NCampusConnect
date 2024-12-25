@@ -37,7 +37,7 @@ const Notifications = React.forwardRef((props, ref) => {
     const fetchNotifications = async () => {
       try {
         const res = await axios.get(
-          `https://ncampusconnect-1.onrender.com/api/notifications/${userId}`
+          `https://ncampusconnect.onrender.com/api/notifications/${userId}`
         );
         setNotifications(res.data);
       } catch (err) {
@@ -61,7 +61,7 @@ const Notifications = React.forwardRef((props, ref) => {
       try {
         // Delete the notification from the server
         await axios.delete(
-          `https://ncampusconnect-1.onrender.com/api/notifications/delete/${_id}`
+          `https://ncampusconnect.onrender.com/api/notifications/delete/${_id}`
         );
 
         // Remove the notification from the local state (UI)

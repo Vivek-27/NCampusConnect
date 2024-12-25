@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import io from 'socket.io-client';
 
 // URL should be the URL of your backend server
-const socket = io('https://ncampusconnect-1.onrender.com');
+const socket = io('https://ncampusconnect.onrender.com');
 
 const useSocket = (userId) => {
   const [notifications, setNotifications] = useState([]);

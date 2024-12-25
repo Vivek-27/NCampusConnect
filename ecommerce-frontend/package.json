@@ -1,7 +1,7 @@
 {
   "name": "ecommerce-frontend",
   "private": true,
-  "proxy": "https://ncampusconnect-1.onrender.com/",
+  "proxy": "https://ncampusconnect.onrender.com",
   "version": "0.0.0",
   "type": "module",
   "scripts": {

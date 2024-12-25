@@ -60,7 +60,7 @@ const CartPage = () => {
       handler: async (response) => {
         try {
           const verifyURL =
-            'https://ncampusconnect-1.onrender.com/api/payment/verify';
+            'https://ncampusconnect.onrender.com/api/payment/verify';
           const { data } = await axios.post(verifyURL, response);
           if (data) {
             dispatch({ type: 'CART_CLEAR' });
@@ -79,8 +79,7 @@ const CartPage = () => {
 
   const handlePay = async () => {
     try {
-      const orderURL =
-        'https://ncampusconnect-1.onrender.com/api/payment/orders';
+      const orderURL = 'https://ncampusconnect.onrender.com/api/payment/orders';
       const { data } = await axios.post(orderURL, {
         amount: total.toFixed(2)
       });

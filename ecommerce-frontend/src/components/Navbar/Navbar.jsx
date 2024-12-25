@@ -155,7 +155,7 @@ const Navbar = () => {
   const fetchProducts = debounce(async (query) => {
     try {
       const response = await axios.get(
-        `http://localhost:5000/api/items/search?name=${query}`
+        `https://ncampusconnect.onrender.com/api/items/search?name=${query}`
       );
       setProducts(response.data);
     } catch (error) {

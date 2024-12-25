@@ -25,7 +25,7 @@ const SocialHome = () => {
   const fetchSearchUsers = debounce(async (query) => {
     try {
       const response = await axios.get(
-        `https://ncampusconnect-1.onrender.com/api/users/getSearchUsers?name=${query}`
+        `https://ncampusconnect.onrender.com/api/users/getSearchUsers?name=${query}`
       );
       setUsers(response.data);
     } catch (error) {

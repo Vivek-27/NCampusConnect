@@ -15,7 +15,7 @@ const ProductDetailPage = () => {
     const fetchProduct = async () => {
       try {
         const response = await fetch(
-          `https://ncampusconnect-1.onrender.com/api/items/one/${id}`
+          `https://ncampusconnect.onrender.com/api/items/one/${id}`
         ).then((res) => res.json());
 
         console.log(response);
