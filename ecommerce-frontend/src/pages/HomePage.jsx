@@ -183,6 +183,10 @@ const HomePage = () => {
       window.removeEventListener('mouseup', onMouseUp);
     };
   }, [isDragging]);
+
+  const user = JSON.parse(localStorage?.getItem('profile'));
+  const userId = user?._id;
+
   return (
     <div className="w-full flex flex-col items-center transition-all duration-300 ease-in-out relative">
       <Outlet />
@@ -227,6 +231,9 @@ const HomePage = () => {
 
       <PiChatCircleTextFill
         onClick={() => {
+          if (!userId) {
+            return;
+          }
           setChatMenu(true);
         }}
         className="fixed  text-green-600 border rounded-full p-2 bg-white right-10 bottom-10 w-16 h-14 cursor-pointer hover:scale-95 active:scale-105 transition-all animate-scroll-in-slide shadow-xl "
