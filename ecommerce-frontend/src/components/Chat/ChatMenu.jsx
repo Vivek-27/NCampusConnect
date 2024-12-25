@@ -291,8 +291,8 @@ const ChatMenu = ({ setChatMenu }) => {
           ref={chatContainerRef}
           className="mid relative w-full h-96 pb-5 px-3 overflow-y-scroll animate-scroll-in-slide scroll-smooth  transition-all duration-100"
         >
-          {allMessages.length > 0 &&
-            allMessages.map((item, idx) => (
+          {allMessages?.length > 0 &&
+            allMessages?.map((item, idx) => (
               <Message
                 key={idx}
                 from={item?.from}
