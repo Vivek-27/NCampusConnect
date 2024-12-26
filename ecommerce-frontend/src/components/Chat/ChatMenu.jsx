@@ -21,7 +21,7 @@ const ChatMenu = ({ setChatMenu }) => {
   // const messages = useOutletContext();
 
   const [allMessages, setAllMessages] = useState([]);
-  const [message, setMessage] = useState([]);
+  const [message, setMessage] = useState();
   const chatContainerRef = useRef(null);
   const [showScrollButton, setShowScrollButton] = useState(false);
   const [users, setUsers] = useState([]);
@@ -210,7 +210,11 @@ const ChatMenu = ({ setChatMenu }) => {
               }}
               className="absolute left-5 top-1/2 transform -translate-y-1/2"
             >
-              {users.length > 0 ? <FiSearch /> : <SlRefresh />}
+              {Array.isArray(allMessages) && users.length > 0 ? (
+                <FiSearch />
+              ) : (
+                <SlRefresh />
+              )}
             </button>
           </form>
         </div>
@@ -291,7 +295,8 @@ const ChatMenu = ({ setChatMenu }) => {
           ref={chatContainerRef}
           className="mid relative w-full h-96 pb-5 px-3 overflow-y-scroll animate-scroll-in-slide scroll-smooth  transition-all duration-100"
         >
-          {allMessages?.length > 0 &&
+          {Array.isArray(allMessages) &&
+            allMessages?.length > 0 &&
             allMessages?.map((item, idx) => (
               <Message
                 key={idx}
