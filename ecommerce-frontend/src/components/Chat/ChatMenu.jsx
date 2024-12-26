@@ -34,25 +34,23 @@ const ChatMenu = ({ setChatMenu }) => {
   const userData = useSelector((state) => state.authReducer);
   const userId = userData?.authData?.user?._id;
 
-  useEffect(() => {
-    const getChatHistory = async () => {
-      await axios
-        .get(
-          `https://ncampusconnect-1.onrender.com/api/chat/history/${userId}/${chatWith._id}`
-        )
-        .then((data) => {
-          setAllMessages(data.data);
-        })
-        .then(() => {
-          chatContainerRef.current.scrollTop =
-            chatContainerRef.current.scrollHeight;
-        });
-    };
-
-    if (chatWith != null) {
-      getChatHistory();
+useEffect(() => {
+  const getChatHistory = async () => {
+    try {
+      const response = await axios.get(
+        `https://ncampusconnect-1.onrender.com/api/chat/history/${userId}/${chatWith._id}`
+      );
+      setAllMessages(response.data);
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    } catch (error) {
+      console.error('Error fetching chat history:', error);
     }
-  }, [chatWith]);
+  };
+
+  if (chatWith != null) {
+    getChatHistory();
+  }
+}, [chatWith?._id]); 
 
   if (chatWith == null) {
     setChatWith(userData?.authData?.user);
