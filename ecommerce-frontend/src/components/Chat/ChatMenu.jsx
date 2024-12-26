@@ -36,7 +36,7 @@ const ChatMenu = ({ setChatMenu }) => {
 
 
 useEffect(() => {
-  if (chatWith != null) {
+  
     axios
       .get(`https://ncampusconnect-1.onrender.com/api/chat/history/${userId}/${chatWith._id}`)
       .then((response) => {
@@ -50,7 +50,7 @@ useEffect(() => {
       .catch((error) => {
         console.error('Error fetching chat history:', error.message);
       });
-  }
+  
 }, [chatWith?._id]);
 
   if (chatWith == null) {
