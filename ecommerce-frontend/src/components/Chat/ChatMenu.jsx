@@ -3,7 +3,7 @@ import { BiFoodMenu, BiSolidMicrophone } from 'react-icons/bi';
 import {
   IoChevronBackOutline,
   IoChevronDownOutline,
-  IoCloseOutline,
+  IoCloseOutline
 } from 'react-icons/io5';
 import { FiSearch, FiEdit } from 'react-icons/fi';
 // import { useOutletContext } from 'react-router-dom';
@@ -108,7 +108,7 @@ const ChatMenu = ({ setChatMenu }) => {
     await axios.post(`https://ncampusconnect.onrender.com/api/chat/send`, {
       from: userId,
       to: chatWith._id,
-      message: message,
+      message: message
     });
     setMessage('');
     scrollToBottom();
@@ -172,12 +172,7 @@ const ChatMenu = ({ setChatMenu }) => {
   };
 
   return (
-    <div
-      style={{
-        backdropFilter: 'blur(50px)',
-      }}
-      className="text-black/70 z-50 bg-gradient-to-r from-white/40 to-white/80 my-10 mx-20 overflow-hidden  rounded grid grid-flow-row grid-cols-7 shadow-2xl"
-    >
+    <div className="text-black/70 z-50 bg-white my-10 mx-20 overflow-hidden  rounded grid grid-flow-row grid-cols-7 shadow-2xl">
       <div className="left col-span-2 ">
         <div className="top border-b-2 border-white/10 pb-2">
           <div className="top flex justify-between text-black/40 items-center h-20 px-5">
