@@ -1,14 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
-import { BiFoodMenu } from 'react-icons/bi';
+import { BiFoodMenu, BiSolidMicrophone } from 'react-icons/bi';
 import {
   IoChevronBackOutline,
   IoChevronDownOutline,
-  IoCloseOutline
+  IoCloseOutline,
 } from 'react-icons/io5';
-import {} from 'react-icons/io5';
-import { FiSearch } from 'react-icons/fi';
-import { BiSolidMicrophone } from 'react-icons/bi';
-import { FiEdit } from 'react-icons/fi';
+import { FiSearch, FiEdit } from 'react-icons/fi';
 // import { useOutletContext } from 'react-router-dom';
 import axios from 'axios';
 import { useSelector } from 'react-redux';
@@ -17,6 +14,7 @@ import { debounce } from 'lodash';
 import { SlRefresh } from 'react-icons/sl';
 import io from 'socket.io-client';
 import { all_users } from '../../redux/api/UserRequest';
+
 const ChatMenu = ({ setChatMenu }) => {
   // const messages = useOutletContext();
 
@@ -34,28 +32,30 @@ const ChatMenu = ({ setChatMenu }) => {
   const userData = useSelector((state) => state.authReducer);
   const userId = userData?.authData?.user?._id;
 
+  useEffect(() => {
+    if (chatWith && userId) {
+      axios
+        .get(
+          `https://ncampusconnect-1.onrender.com/api/chat/history/${userId}/${chatWith._id}`
+        )
+        .then((response) => {
+          setAllMessages(response.data);
+          if (chatContainerRef.current) {
+            chatContainerRef.current.scrollTop =
+              chatContainerRef.current.scrollHeight;
+          }
+        })
+        .catch((error) => {
+          console.error('Error fetching chat history:', error.message);
+        });
+    }
+  }, [chatWith, userId]);
 
-useEffect(() => {
-  
-    axios
-      .get(`https://ncampusconnect-1.onrender.com/api/chat/history/${userId}/${chatWith._id}`)
-      .then((response) => {
-        setAllMessages(response.data);
-
-        // Scroll to bottom
-        if (chatContainerRef.current) {
-          chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
-        }
-      })
-      .catch((error) => {
-        console.error('Error fetching chat history:', error.message);
-      });
-  
-}, [chatWith?._id]);
-
-  if (chatWith == null) {
-    setChatWith(userData?.authData?.user);
-  }
+  useEffect(() => {
+    if (!chatWith && userData?.authData?.user) {
+      setChatWith(userData.authData.user);
+    }
+  }, [chatWith, userData]);
 
   const { socketMsg } = useSocket(userId);
 
@@ -108,7 +108,7 @@ useEffect(() => {
     await axios.post(`https://ncampusconnect.onrender.com/api/chat/send`, {
       from: userId,
       to: chatWith._id,
-      message: message
+      message: message,
     });
     setMessage('');
     scrollToBottom();
@@ -174,7 +174,7 @@ useEffect(() => {
   return (
     <div
       style={{
-        backdropFilter: 'blur(50px)'
+        backdropFilter: 'blur(50px)',
       }}
       className="text-black/70 z-50 bg-gradient-to-r from-white/40 to-white/80 my-10 mx-20 overflow-hidden  rounded grid grid-flow-row grid-cols-7 shadow-2xl"
     >
