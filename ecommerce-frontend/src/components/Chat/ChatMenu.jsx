@@ -172,7 +172,12 @@ const ChatMenu = ({ setChatMenu }) => {
   };
 
   return (
-    <div className="text-black/70 z-50 bg-white my-10 mx-20 overflow-hidden  rounded grid grid-flow-row grid-cols-7 shadow-2xl">
+    <div
+      style={{
+        backdropFilter: 'blur(25px)'
+      }}
+      className="text-black/70 bg-white/90 z-50 my-10 mx-20 overflow-hidden  rounded grid grid-flow-row grid-cols-7 shadow-2xl"
+    >
       <div className="left col-span-2 ">
         <div className="top border-b-2 border-white/10 pb-2">
           <div className="top flex justify-between text-black/40 items-center h-20 px-5">
